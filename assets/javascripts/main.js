@@ -1,48 +1,29 @@
 import Rx from 'rx';
 import Cycle from '@cycle/core';
 import {div, h2, makeDOMDriver} from '@cycle/dom';
-import { LabeledSlider } from './component/labeledslider';
-
-function calculateBMI( weight, height ) {
-  const heightMetres = height * 0.01;
-  const bmi = Math.round(weight / (heightMetres * heightMetres));
-  return bmi;
-}
+import { BMICalculator } from './component/bmicalculator';
+import { UserBox } from './component/userbox';
 
 function main(sources) {
-  const weightProps$ = Rx.Observable.of({
-    label: 'Weight',
-    unit: 'kg',
-    min: 70,
-    max: 200,
-    init: 120
+  const bmiSinks = BMICalculator({DOM: sources.DOM});
+  const bmiVTree$ = bmiSinks.DOM;
+
+  const userProps$ = Rx.Observable.of({
+    following: 400,
+    followers: 600,
+    description: 'My name is Ian',
+    isFollowed: 1
   });
 
-  const weightSinks = LabeledSlider({DOM: sources.DOM, props: weightProps$});
-  const weightVTree$ = weightSinks.DOM;
-  const weightValue$ = weightSinks.value;
+  const userSinks = UserBox({DOM: sources.DOM, props: userProps$});
+  const userVTree$ = userSinks.DOM;
 
-  const heightProps$ = Rx.Observable.of({
-    label: 'Height',
-    unit: 'cm',
-    min: 120,
-    max: 250,
-    init: 170
-  });
-
-  const heightSinks = LabeledSlider({DOM: sources.DOM, props: heightProps$});
-  const heightVTree$ = heightSinks.DOM;
-  const heightValue$ = heightSinks.value;
-
-  const bmi$ = Rx.Observable.combineLatest( weightValue$, heightValue$, calculateBMI );
-
-  const vtree$ = Rx.Observable.combineLatest( bmi$, weightVTree$, heightVTree$,
-    (bmi, weightVTree, heightVTree) =>
+  const vtree$ = Rx.Observable.combineLatest( bmiVTree$, userVTree$,
+    (bmiVTree, userVTree) =>
       div([
-        weightVTree,
-        heightVTree,
-        h2(`BMI is ${bmi}`)
-      ])
+        bmiVTree,
+        userVTree
+     ])
     );
 
   return {

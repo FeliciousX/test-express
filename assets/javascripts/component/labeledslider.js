@@ -41,8 +41,6 @@ function LabeledSlider(sources) {
   };
 }
 
-const IsolatedLabeledSlider = function (sources) {
-  return isolate(LabeledSlider)(sources);
-}
+const Component = sources => isolate(LabeledSlider)(sources);
 
-export { IsolatedLabeledSlider as LabeledSlider };
+export { Component as LabeledSlider };
