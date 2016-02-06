@@ -1,5 +1,4 @@
 import Rx from 'rx';
-import Cycle from '@cycle/core';
 import {div, h2, makeDOMDriver} from '@cycle/dom';
 import isolate from '@cycle/isolate';
 import { LabeledSlider } from './labeledslider';

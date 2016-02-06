@@ -1,5 +1,4 @@
 import Rx from 'rx';
-import Cycle from '@cycle/core';
 import {div, h2, hr, p, button, makeDOMDriver} from '@cycle/dom';
 import isolate from '@cycle/isolate';
 
@@ -12,26 +11,25 @@ function intent(DOMSource) {
 function model(newValue$, props$) {
   const initialValue$ = props$.map( props => props.init ).first();
   const value$ = initialValue$.concat( newValue$ );
-  return Rx.Observable.combineLatest( value$, props$, (value, props) => {
-    return {
+  return Rx.Observable.combineLatest( value$, props$, (value, props) => ({
       name: props.name,
       following: props.following,
       followers: props.followers,
       description: props.description,
       isFollowed: !value,
-      condition: value ? 'Unfollow' : 'Follow'
-    };
-  });
+      condition: value ? 'Following' : 'Follow',
+    })
+  );
 }
 
 function view(state$) {
   return state$.map( state =>
     div('.user', [
       h2( state.name ),
-      p('.following', `Following ${state.following}`),
-      p('.followers', `Followers ${state.followers}`),
+      p(`Following ${state.following}`),
+      p(`Followers ${state.followers}`),
       p('.description', `${state.description}`),
-      button('.toggle-follow', {'dataset': { 'follow': state.isFollowed }}, state.condition),
+      button(`.toggle-follow.${state.condition.toLowerCase()}`, {'dataset': { 'follow': state.isFollowed }}, state.condition),
       hr()
    ])
   );
